@@ -9,28 +9,42 @@ class TriageService:
     def __init__(self, llm) -> None:
         self.llm = llm
 
+    @classmethod
+    def validar_relato(
+        cls,
+        relato: str,
+    ) -> str:
+
+        relato_limpo = relato.strip()
+
+        if not relato_limpo:
+            raise ValueError(
+                "O relato do bug não pode estar vazio."
+            )
+
+        if len(relato_limpo) < cls.MIN_REPORT_LENGTH:
+            raise ValueError(
+                "O relato deve possuir pelo menos "
+                f"{cls.MIN_REPORT_LENGTH} caracteres."
+            )
+
+        if len(relato_limpo) > cls.MAX_REPORT_LENGTH:
+            raise ValueError(
+                "O relato deve possuir no máximo "
+                f"{cls.MAX_REPORT_LENGTH} caracteres."
+            )
+
+        return relato_limpo
+
     def analisar(
         self,
         relato: str,
     ) -> BugTriage:
 
-        relato = relato.strip()
+        relato_validado = self.validar_relato(
+            relato
+        )
 
-        if not relato:
-            raise ValueError(
-                "O relato do bug não pode estar vazio."
-            )
-
-        if len(relato) < self.MIN_REPORT_LENGTH:
-            raise ValueError(
-                "O relato deve possuir pelo menos "
-                f"{self.MIN_REPORT_LENGTH} caracteres."
-            )
-
-        if len(relato) > self.MAX_REPORT_LENGTH:
-            raise ValueError(
-                "O relato deve possuir no máximo "
-                f"{self.MAX_REPORT_LENGTH} caracteres."
-            )
-
-        return self.llm.analisar_bug(relato)
+        return self.llm.analisar_bug(
+            relato_validado
+        )

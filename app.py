@@ -1,3 +1,5 @@
+import logging
+
 import streamlit as st
 from dotenv import load_dotenv
 
@@ -7,6 +9,8 @@ from bugpilot.triage_service import TriageService
 
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 
 st.set_page_config(
@@ -60,10 +64,15 @@ if st.button("Analisar bug"):
 
         st.warning(str(erro))
 
-    except Exception as erro:
+    except Exception:
+
+        logger.exception(
+            "Erro inesperado durante a análise do bug."
+        )
 
         st.error(
-            f"Erro ao analisar bug: {erro}"
+            "Não foi possível analisar o bug. "
+            "Tente novamente em alguns instantes."
         )
 
 
@@ -148,7 +157,6 @@ if triagem:
                 f"{numero}. {passo}"
             )
 
-
     st.divider()
 
     st.subheader(
@@ -160,7 +168,6 @@ if triagem:
         "e devem ser revisados antes de serem usados "
         "em uma suíte de testes."
     )
-
 
     if st.button("Gerar casos de teste"):
 
@@ -184,10 +191,15 @@ if triagem:
                 str(erro)
             )
 
-        except Exception as erro:
+        except Exception:
+
+            logger.exception(
+                "Erro inesperado durante a geração de casos de teste."
+            )
 
             st.error(
-                f"Erro ao gerar casos de teste: {erro}"
+                "Não foi possível gerar os casos de teste. "
+                "Tente novamente em alguns instantes."
             )
 
 
