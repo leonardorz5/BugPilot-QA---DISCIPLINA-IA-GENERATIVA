@@ -4,6 +4,7 @@ from bugpilot.models import BugTriage
 class TriageService:
 
     MIN_REPORT_LENGTH = 20
+    MAX_REPORT_LENGTH = 5000
 
     def __init__(self, llm) -> None:
         self.llm = llm
@@ -24,6 +25,12 @@ class TriageService:
             raise ValueError(
                 "O relato deve possuir pelo menos "
                 f"{self.MIN_REPORT_LENGTH} caracteres."
+            )
+
+        if len(relato) > self.MAX_REPORT_LENGTH:
+            raise ValueError(
+                "O relato deve possuir no máximo "
+                f"{self.MAX_REPORT_LENGTH} caracteres."
             )
 
         return self.llm.analisar_bug(relato)

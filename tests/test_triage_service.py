@@ -51,3 +51,34 @@ def test_envia_relato_valido_para_llm():
     llm.analisar_bug.assert_called_once_with(
         relato
     )
+    
+def test_rejeita_relato_acima_do_limite():
+
+    llm = Mock()
+
+    service = TriageService(llm)
+
+    relato = "a" * 5001
+
+    with pytest.raises(
+        ValueError,
+        match="no máximo 5000 caracteres",
+    ):
+        service.analisar(relato)
+
+    llm.analisar_bug.assert_not_called()
+
+
+def test_aceita_relato_exatamente_no_limite():
+
+    llm = Mock()
+
+    service = TriageService(llm)
+
+    relato = "a" * 5000
+
+    service.analisar(relato)
+
+    llm.analisar_bug.assert_called_once_with(
+        relato
+    )
