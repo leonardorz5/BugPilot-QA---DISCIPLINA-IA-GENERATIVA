@@ -2,8 +2,11 @@ import os
 
 from google import genai
 
-from bugpilot.models import BugTriage
-from bugpilot.prompts import TRIAGE_PROMPT
+from bugpilot.models import BugTriage, SuiteTestes
+from bugpilot.prompts import (
+    TRIAGE_PROMPT,
+    TEST_GENERATION_PROMPT,
+)
 
 
 class GeminiClient:
@@ -52,6 +55,35 @@ RELATO DO BUG:
         if response.parsed is None:
             raise RuntimeError(
                 "O modelo não retornou uma resposta válida."
+            )
+
+        return response.parsed
+
+    def gerar_casos_teste(
+        self,
+        triagem: BugTriage,
+    ) -> SuiteTestes:
+
+        prompt = f"""
+{TEST_GENERATION_PROMPT}
+
+TRIAGEM DO BUG:
+
+{triagem.model_dump_json(indent=2)}
+"""
+
+        response = self.client.models.generate_content(
+            model=self.model,
+            contents=prompt,
+            config={
+                "response_mime_type": "application/json",
+                "response_schema": SuiteTestes,
+            },
+        )
+
+        if response.parsed is None:
+            raise RuntimeError(
+                "O modelo não retornou casos de teste válidos."
             )
 
         return response.parsed
